@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Road Rules Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .question { margin-bottom: 20px; }
+        .options { margin: 10px 0; }
+        .option { margin: 5px 0; }
+        .result { color: green; font-weight: bold; }
+        .incorrect { color: red; }
+        #progress { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div id="testContainer">
+        <div id="progress"></div>
+        <div id="questionContainer"></div>
+        <button onclick="submitAnswer()" id="submitBtn">Submit</button>
+    </div>
+    <div id="resultContainer" style="display: none;">
+        <h2>Test Results</h2>
+        <p>Score: <span id="score"></span>/20</p>
+        <div id="review"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the primary purpose of road rules?",
+                options: [
+                    "To confuse drivers",
+                    "To generate revenue through fines",
+                    "To regulate traffic and ensure safety",
+                    "To favor certain types of vehicles"
+                ],
+                correct: 2
+            },
+            {
+                question: "In South Africa, which side of the road must you keep to?",
+                options: ["Right", "Center", "Either side, depending on traffic", "Left"],
+                correct: 3
+            },
+            // Add all 150 questions here following the same format
+            // { question: "...", options: ["a", "b", "c", "d"], correct: x },
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const selectedQuestions = [];
+
+        function initializeTest() {
+            // Select 20 random unique questions
+            while(selectedQuestions.length < 20) {
+                const randomIndex = Math.floor(Math.random() * questions.length);
+                if(!selectedQuestions.includes(randomIndex)) selectedQuestions.push(randomIndex);
+            }
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[selectedQuestions[currentQuestion]];
+            let html = `<div class="question">${q.question}</div><div class="options">`;
+            
+            q.options.forEach((option, index) => {
+                html += `
+                    <div class="option">
+                        <input type="radio" name="answer" value="${index}" id="opt${index}">
+                        <label for="opt${index}">${String.fromCharCode(97 + index)}) ${option}</label>
+                    </div>`;
+            });
+            
+            html += `</div>`;
+            document.getElementById("questionContainer").innerHTML = html;
+            document.getElementById("progress").textContent = `Question ${currentQuestion + 1} of 20`;
+        }
+
+        function submitAnswer() {
+            const selected = document.querySelector('input[name="answer"]:checked');
+            if (!selected) return alert("Please select an answer!");
+            
+            const q = questions[selectedQuestions[currentQuestion]];
+            const isCorrect = parseInt(selected.value) === q.correct;
+            
+            if (isCorrect) score++;
+            showResult(isCorrect);
+            
+            if(currentQuestion < 19) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showFinalResults();
+            }
+        }
+
+        function showResult(isCorrect) {
+            const resultDiv = document.createElement("div");
+            resultDiv.textContent = isCorrect ? "✓ Correct" : "✗ Incorrect";
+            resultDiv.className = isCorrect ? "result" : "result incorrect";
+            document.getElementById("questionContainer").appendChild(resultDiv);
+        }
+
+        function showFinalResults() {
+            document.getElementById("testContainer").style.display = "none";
+            document.getElementById("resultContainer").style.display = "block";
+            document.getElementById("score").textContent = score;
+        }
+
+        // Start the test
+        initializeTest();
+    </script>
+</body>
+</html>
